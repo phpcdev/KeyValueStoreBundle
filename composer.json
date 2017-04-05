@@ -1,5 +1,5 @@
 {
-    "name": "elcweb/keyvaluestore-bundle",
+    "name": "phpcdev/keyvaluestore-bundle",
     "type": "symfony-bundle",
     "description": "Allows you to easily access and set key-value",
     "license": "MIT",
