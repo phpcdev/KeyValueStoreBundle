@@ -4,14 +4,31 @@ namespace Elcweb\KeyValueStoreBundle;
 
 use Doctrine\ORM\EntityManager;
 use Elcweb\KeyValueStoreBundle\Entity\KeyValue;
+use PHPReaction\UserBundle\Helper\PersonLoginHelper;
 
 class KeyValueStore
 {
+    /**
+     *
+     * @var EntityManager
+     */
     protected $em;
+    /**
+     *
+     * @var EntityManager
+     */
+    protected $personLoginHelper;
 
-    public function __construct(EntityManager $em)
+    /**
+     * KeyValueStore constructor.
+     *
+     * @param EntityManager $em
+     * @param PersonLoginHelper $personLoginHelper
+     */
+    public function __construct(EntityManager $em, PersonLoginHelper $personLoginHelper)
     {
         $this->em = $em;
+        $this->personLoginHelper = $personLoginHelper;
     }
 
     /**
@@ -25,7 +42,7 @@ class KeyValueStore
         $value = $this->em->getRepository('ElcwebKeyValueStoreBundle:KeyValue')->findOneByKey($key);
 
         if (!$value) {
-            return false;
+            return null;
         }
 
         return $value->getValue();
@@ -72,9 +89,16 @@ class KeyValueStore
             ->getResult();
 
         $return = array();
+        if ($this->personLoginHelper->getLoggedPerson()) {
+            $loggedUser = $this->personLoginHelper->getLoggedPerson()->getUser();
+        }
 
-        foreach ($result as $row) {
-            $return[substr($row->getKey(), strlen($key))] = $row->getValue();
+        foreach ($result as $index => $row) {
+            if ($row->getUser() === null || $row->getUser() === $loggedUser) {
+                $return[substr($row->getKey(), strlen($key))] = $row->getValue();
+            } else {
+                unset($result[$index]);
+            }
         }
 
         return $return;

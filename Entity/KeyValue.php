@@ -2,9 +2,14 @@
 
 namespace Elcweb\KeyValueStoreBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Elcweb\CommonBundle\Entity\BaseEntity;
 use JMS\Serializer\Annotation as Serializer;
+use Gedmo\Mapping\Annotation as Gedmo;
+use PHPReaction\UserBundle\Entity\User;
+use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * KeyValue
@@ -13,16 +18,22 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Entity
  *
  * @Serializer\ExclusionPolicy("all")
+ * @Gedmo\Loggable
  */
 class KeyValue extends BaseEntity
 {
     /**
      * @var string
      *
+     * @Assert\Length(
+     *      min = 2,
+     *      minMessage = "The key name should be at least 2 characters long"
+     * )
      * @ORM\Column(name="key_name", type="string")
      * @ORM\Id
      *
      * @Serializer\Expose
+     * @Gedmo\Versioned
      */
     private $key;
 
@@ -32,6 +43,7 @@ class KeyValue extends BaseEntity
      * @ORM\Column(type="text")
      *
      * @Serializer\Expose
+     * @Gedmo\Versioned
      */
     private $value;
 
@@ -40,8 +52,21 @@ class KeyValue extends BaseEntity
      *
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Expose
+     * @Gedmo\Versioned
      */
     private $description;
+
+    /**
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity="PHPReaction\UserBundle\Entity\User", inversedBy="keyValue")
+     * @ORM\JoinColumn(name="users_id", referencedColumnName="id", nullable=true)
+     * @JMS\Expose
+     * @JMS\Groups({"listing", "show", "edit"})
+     * @JMS\SerializedName("user")
+     * @JMS\MaxDepth(2)
+     */
+    protected $user;
 
     /**
      * Set var
@@ -110,5 +135,29 @@ class KeyValue extends BaseEntity
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * Set user.
+     *
+     * @param $user
+     *
+     * @return $this
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user's login
+     *
+     * @return mixed|null
+     */
+    public function getUser()
+    {
+        return $this->user ?: null;
     }
 }

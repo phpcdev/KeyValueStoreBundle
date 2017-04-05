@@ -2,6 +2,7 @@
 
 namespace Elcweb\KeyValueStoreBundle\Form;
 
+use PHPReaction\CommonBundle\Form\Type\Select2Type;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
@@ -13,7 +14,11 @@ class KeyValueType extends AbstractType
         $builder
             ->add('key')
             ->add('value')
-            ->add('description');
+            ->add('description')
+            ->add('user', Select2Type::class, [
+                'route' => 'user_simple_list',
+                'class' => 'PHPReactionUserBundle:User'
+            ]);
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
